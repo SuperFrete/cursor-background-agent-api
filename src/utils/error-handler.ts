@@ -9,7 +9,7 @@ export interface ErrorContext {
 export class ErrorHandler {
   static handle(error: unknown, context: ErrorContext): never {
     const errorMessage = this.formatError(error);
-    logger.error(`${context.operation} failed: ${errorMessage}`, context.details);
+    logger.error(context.details ? { details: context.details } : {}, `${context.operation} failed: ${errorMessage}`);
     
     if (error instanceof ApiError) {
       throw error;

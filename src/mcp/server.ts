@@ -33,7 +33,7 @@ export const startMcpServer = async (port: number = 3001) => {
         server.close();
       });
     } catch (error) {
-      logger.error('Error handling MCP request:', error);
+      logger.error({ error }, 'Error handling MCP request');
       if (!res.headersSent) {
         res.status(500).json({
           jsonrpc: '2.0',

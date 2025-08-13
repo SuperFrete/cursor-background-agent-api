@@ -70,11 +70,11 @@ export class HttpClient {
       const status = axiosError.response?.status || 0;
       const message = `Request failed: ${axiosError.message}`;
       
-      logger.error(message, { 
-        status, 
-        url: requestConfig.url, 
-        method: requestConfig.method 
-      });
+      logger.error({
+        status,
+        url: requestConfig.url,
+        method: requestConfig.method
+      }, message);
       
       throw new ApiError(message, status, axiosError.response?.data);
     }

@@ -18,14 +18,14 @@ export const createMcpServer = () => {
   });
 
   // Register all tools
-  allTools.forEach(tool => {
-    server.registerTool(tool.name, {
+  (allTools).forEach(tool => {
+    (server as any).registerTool(tool.name, {
       title: tool.name.split('-').map(word => 
         word.charAt(0).toUpperCase() + word.slice(1)
       ).join(' '),
       description: tool.description,
-      inputSchema: tool.inputSchema
-    }, tool.handler);
+      inputSchema: tool.inputSchema as any
+    }, tool.handler as any);
   });
 
   // Register resources
@@ -41,14 +41,14 @@ export const createMcpServer = () => {
   );
 
   // Register prompts
-  server.registerPrompt(
+  (server as any).registerPrompt(
     createComposerTemplatePrompt.name,
     {
       title: 'Create Composer Template',
       description: createComposerTemplatePrompt.description,
-      argsSchema: createComposerTemplatePrompt.argsSchema
+      argsSchema: createComposerTemplatePrompt.argsSchema as any
     },
-    createComposerTemplatePrompt.handler
+    createComposerTemplatePrompt.handler as any
   );
 
   return server;

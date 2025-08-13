@@ -172,7 +172,7 @@ export class CursorAPIClient {
         }
       };
     } catch (error) {
-      logger.error('API test failed:', error);
+      logger.error({ error }, 'API test failed');
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error'

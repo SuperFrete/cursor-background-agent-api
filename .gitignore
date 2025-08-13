@@ -13,6 +13,7 @@ dist/
 # IDE files
 .vscode/
 .idea/
+.history/
 
 # OS files
 .DS_Store
