@@ -26,96 +26,115 @@ import {
 } from './utils/parsers.js';
 
 export class CursorAPIClient {
-  private httpClient: HttpClient;
-  private composerService: ComposerService;
-  private userService: UserService;
-  private dashboardService: DashboardService;
+  private httpClient?: HttpClient;
+  private composerService?: ComposerService;
+  private userService?: UserService;
+  private dashboardService?: DashboardService;
+  private defaultSessionToken?: string;
 
   constructor(sessionToken?: string) {
-    const token = sessionToken || config.sessionToken;
-    this.httpClient = new HttpClient(token);
-    
-    // Initialize services
-    this.composerService = new ComposerService(this.httpClient);
-    this.userService = new UserService(this.httpClient);
-    this.dashboardService = new DashboardService(this.httpClient);
-    
-    logger.info(`Initialized API client with session token: ${token.substring(0, 50)}...`);
+    this.defaultSessionToken = sessionToken;
+  }
+
+  private initializeClients(sessionTokenOverride?: string): void {
+    const token = sessionTokenOverride || this.defaultSessionToken || config.sessionToken;
+    if (!this.httpClient || (sessionTokenOverride && sessionTokenOverride !== this.defaultSessionToken)) {
+      this.httpClient = new HttpClient(token);
+      this.composerService = new ComposerService(this.httpClient);
+      this.userService = new UserService(this.httpClient);
+      this.dashboardService = new DashboardService(this.httpClient);
+      logger.info('Initialized API client');
+      this.defaultSessionToken = token;
+    }
   }
 
   // Background Composer methods - delegate to ComposerService
   async listComposers(n: number = 100, includeStatus: boolean = true): Promise<BackgroundComposer[]> {
     logger.info('Listing background composers...');
-    return this.composerService.list(n, includeStatus);
+    this.initializeClients();
+    return this.composerService!.list(n, includeStatus);
   }
 
-  async createBackgroundComposer(options: CreateBackgroundComposerOptions): Promise<CreateBackgroundComposerResponse> {
+  async createBackgroundComposer(options: CreateBackgroundComposerOptions, opts?: { sessionToken?: string }): Promise<CreateBackgroundComposerResponse> {
     logger.info(`Creating background composer with task: ${options.taskDescription}`);
-    const response = await this.composerService.create(options);
+    this.initializeClients(opts?.sessionToken);
+    const response = await this.composerService!.create(options);
     logger.info(`Background composer created successfully with ID: ${response.composer?.bcId}`);
     return response;
   }
 
   async getDetailedComposer(composerId: string): Promise<DetailedComposerResponse> {
     logger.info('Getting detailed composer information...');
-    return this.composerService.getDetailed(composerId);
+    this.initializeClients();
+    return this.composerService!.getDetailed(composerId);
   }
 
   async getDiffDetails(composerId: string): Promise<DiffDetailsResponse> {
     logger.info('Getting diff details...');
-    return this.composerService.getDiffDetails(composerId);
+    this.initializeClients();
+    return this.composerService!.getDiffDetails(composerId);
   }
 
   async getChangesHash(composerId: string): Promise<ChangesHashResponse> {
     logger.info('Getting changes hash...');
-    return this.composerService.getChangesHash(composerId);
+    this.initializeClients();
+    return this.composerService!.getChangesHash(composerId);
   }
 
   async openPr(composerId: string, prData: any): Promise<OpenPrResponse> {
     logger.info('Opening pull request...');
-    return this.composerService.openPr(composerId, prData);
+    this.initializeClients();
+    return this.composerService!.openPr(composerId, prData);
   }
 
   async pauseComposer(composerId: string): Promise<PauseComposerResponse> {
     logger.info('Pausing composer...');
-    return this.composerService.pause(composerId);
+    this.initializeClients();
+    return this.composerService!.pause(composerId);
   }
 
   async revertFile(composerId: string, filePath: string): Promise<RevertFileResponse> {
     logger.info('Reverting file...');
-    return this.composerService.revertFile(composerId, filePath);
+    this.initializeClients();
+    return this.composerService!.revertFile(composerId, filePath);
   }
 
   async attachBackgroundComposer(composerId: string, attachmentData?: any): Promise<AttachBackgroundComposerResponse> {
     logger.info('Attaching background composer...');
-    return this.composerService.attach(composerId, attachmentData);
+    this.initializeClients();
+    return this.composerService!.attach(composerId, attachmentData);
   }
 
   async attachBackgroundComposerLogs(composerId: string): Promise<AttachBackgroundComposerResponse> {
     logger.info('Attaching background composer logs...');
-    return this.composerService.attachLogs(composerId);
+    this.initializeClients();
+    return this.composerService!.attachLogs(composerId);
   }
 
   // User methods - delegate to UserService
   async checkWebAccess(): Promise<WebAccessResponse> {
     logger.info('Checking agent web access...');
-    return this.userService.checkWebAccess();
+    this.initializeClients();
+    return this.userService!.checkWebAccess();
   }
 
   async getUserSettings(): Promise<UserSettingsResponse> {
     logger.info('Getting user settings...');
-    return this.userService.getSettings();
+    this.initializeClients();
+    return this.userService!.getSettings();
   }
 
   async updateUserSettings(settings: Partial<UserSettingsResponse>): Promise<UserSettingsResponse> {
     logger.info('Updating user settings...');
-    return this.userService.updateSettings(settings);
+    this.initializeClients();
+    return this.userService!.updateSettings(settings);
   }
 
   // Dashboard methods - delegate to DashboardService
   async getPrivacyMode(): Promise<PrivacyModeResponse> {
     logger.info('Getting privacy mode...');
-    return this.dashboardService.getPrivacyMode();
+    this.initializeClients();
+    return this.dashboardService!.getPrivacyMode();
   }
 
   // Convenience methods that return parsed responses

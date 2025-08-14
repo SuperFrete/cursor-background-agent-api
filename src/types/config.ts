@@ -1,6 +1,6 @@
 export interface Config {
   baseUrl: string;
-  sessionToken: string;
+  sessionToken?: string;
   userAgent: string;
   timeout: number;
   maxRetries: number;

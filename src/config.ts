@@ -6,7 +6,7 @@ import { Config } from './types/config.js';
 // Load environment variables
 loadEnv();
 
-function getSessionToken(): string {
+function resolveSessionToken(): string | undefined {
   // Try environment variable first
   if (process.env.CURSOR_SESSION_TOKEN) {
     return process.env.CURSOR_SESSION_TOKEN;
@@ -24,18 +24,17 @@ function getSessionToken(): string {
   } catch (error) {
     // Ignore file read errors
   }
-  
-  throw new Error('Session token not found. Set CURSOR_SESSION_TOKEN environment variable or provide cookies.json');
+  return undefined;
 }
 
 export const config: Config = {
   baseUrl: process.env.CURSOR_BASE_URL || 'https://cursor.com',
-  sessionToken: getSessionToken(),
+  sessionToken: resolveSessionToken(),
   userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
   timeout: parseInt(process.env.REQUEST_TIMEOUT || '30000', 10),
   maxRetries: parseInt(process.env.MAX_RETRIES || '3', 10),
   retryDelay: 1000,
-  logLevel: process.env.LOG_LEVEL || 'info'
+  logLevel: process.env.LOG_LEVEL || 'silent'
 };
 
 export const endpoints = {

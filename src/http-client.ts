@@ -7,7 +7,10 @@ import { logger } from './utils/logger.js';
 export class HttpClient {
   private axios: AxiosInstance;
 
-  constructor(sessionToken: string) {
+  constructor(sessionToken?: string) {
+    if (!sessionToken) {
+      throw new ApiError('Missing session token. Provide via options or CURSOR_SESSION_TOKEN env.', 401);
+    }
     const headers: Record<string, string> = {
       'Accept': '*/*',
       'Accept-Encoding': 'gzip, deflate, br, zstd',
